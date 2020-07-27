@@ -97,7 +97,7 @@ def get_upload_msg():
     config_file = open(CONFIG_PATH, 'r', encoding="utf-8")
     config = json.load(config_file)
     location = config["Location"]
-    if location == 1:
+    if location == "1":
         upload_msg = NORTH_UPLOAD_MSG
     else:
         upload_msg = SOUTH_UPLOAD_MSG
@@ -113,6 +113,7 @@ def upload_ncov_message(cookie):
     """
     header = DEFAULT_HEADER
     upload_message = get_upload_msg()
+    print(upload_message)
     r = requests.post(UPLOAD_URL, cookies=cookie, headers=header, data=upload_message)
     if r.json()['e'] == 0:
         send_msg("上报成功", "上报成功")
