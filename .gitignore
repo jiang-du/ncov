@@ -1,2 +1,5 @@
 .idea/
-./data/cookie.txt
+data/cookie.txt
+myconfig.json
+venv
+utils\__pycache__
