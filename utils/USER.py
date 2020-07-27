@@ -14,7 +14,7 @@ DEFAULT_HEADER = {
 LOGIN_URL = "https://xxcapp.xidian.edu.cn/uc/wap/login/check"
 
 COOKIE_FILE_NAME = "data/cookie.txt"
-CONFIG_PATH = "data/myconfig.json"
+CONFIG_PATH = "data/config.json"
 
 
 def get_cookie_from_login(student_id: str, password: str, cookie_file_path=COOKIE_FILE_NAME):
