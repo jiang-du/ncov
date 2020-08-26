@@ -6,11 +6,13 @@
 
 1. 更人性化的设计：程序启动时立即上报一次。
 
-2. 新增了随机初始化上报的时刻的功能。
+2. 每天晚上随机初始化下一天上报的时刻，以避免多人同时使用对服务器的负载压力。
 
 3. 上报失败时，自动尝试重新上报(最大次数3次)；新增了每次上报后的冷却(cd)时间为180秒。
 
 4. 除了南北校区外，新增了在校外的地点选择(出差模式)。
+
+5. 支持自由选择是否开启夜间睡眠模式，更加低碳环保。
 
 ## 项目依赖
 
@@ -33,15 +35,24 @@ Windows系统：
 pip install requests -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
-### Step 2 运行
+### Step 2 修改配置文件(`data/config.json`)
+
+Linux系统：
 
 ```bash
-python3 index.py
+vim ./data/config.json
 ```
 
-### 编写 data/config.json 配置文件，格式如下
+Windows系统：
+
+```bash
+notepad ./data/config.json
+```
+
+格式如下：
 
 > python 字典的语法, '//'以后为注释。各个参数与选项皆已列出,每一项都是必填字段
+
 ```python
 {
     "stuNum" : "123456789",   // 学号or工号
@@ -50,7 +61,14 @@ python3 index.py
     "ServerToken" : ""        // server酱的token，用于消息提醒，非必填
 }
 ```
-server酱问题：使用server酱进行通知，先前往[server酱官网](http://sc.ftqq.com/)进行申请与绑定，得到一个server酱的Token，将此Token替换config.json里的token
+
+(可选) server酱问题：使用server酱进行通知，先前往[server酱官网](http://sc.ftqq.com/)进行申请与绑定，得到一个server酱的Token，将此Token替换config.json里的token
+
+### Step 3 运行
+
+```bash
+python3 index.py
+```
 
 ### 配合腾讯云函数使用（免费）
 
@@ -76,7 +94,7 @@ server酱问题：使用server酱进行通知，先前往[server酱官网](http:
 
 6. 然后就可以测试云函数了，绿色代表云函数执行成功，红色代表云函数执行失败（失败的原因大部分是由于依赖造成的）。如遇到问题，请仔细查看日志，欢迎提ISSUE
 
-7. enjoy it!
+7. Enjoy it!
 
 ### 服务器使用
 
