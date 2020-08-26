@@ -10,9 +10,19 @@
 
 3. 上报失败时，自动尝试重新上报(最大次数3次)；新增了每次上报后的冷却(cd)时间为180秒。
 
-4. 除了南北校区外，新增了在校外的地点选择(出差模式)。
+4. 除了南北校区外，新增了在校外的地点选择(出差/旅游模式)。
 
 5. 支持自由选择是否开启夜间睡眠模式，更加低碳环保。
+
+2020-08-27 更新日志：
+
+1. 优化了代码逻辑结构，主函数更简洁。
+
+2. 程序启动时自动检查是否可以联网，并根据需要抛出异常。
+
+3. 每小时输出一次当前时刻(夜间免打扰时间段除外)，以便用户确认程序在正常运行，使用体验更棒。
+
+4. 支持[github](https://github.com/jiang-du/Auto-dailyup)和[码云](https://gitee.com/jiangdu/Auto-dailyup)多个源下载代码，对国内访问体验更友好。
 
 ## 项目依赖
 
@@ -21,7 +31,15 @@
 
 ## 使用方法
 
-### Step 1 环境配置：安装requests库
+### Step 1 下载源代码
+
+```bash
+git clone git@github.com:jiang-du/Auto-dailyup.git
+# 如果网速太慢，可以使用码云镜像
+git clone git@gitee.com:jiangdu/Auto-dailyup.git
+```
+
+### Step 2 环境配置：安装requests库
 
 Linux系统：
 
@@ -35,7 +53,9 @@ Windows系统：
 pip install requests -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
-### Step 2 修改配置文件(`data/config.json`)
+### Step 3 修改配置文件(`data/config.json`)
+
+进入源代码所在路径，然后终端运行：
 
 Linux系统：
 
@@ -62,9 +82,9 @@ notepad ./data/config.json
 }
 ```
 
-(可选) server酱问题：使用server酱进行通知，先前往[server酱官网](http://sc.ftqq.com/)进行申请与绑定，得到一个server酱的Token，将此Token替换config.json里的token
+(可选) server酱问题：使用server酱进行通知，先前往[server酱官网](http://sc.ftqq.com/)进行申请与绑定，得到一个server酱的Token，将此Token替换`config.json`里的token
 
-### Step 3 运行
+### Step 4 运行
 
 ```bash
 python3 index.py
@@ -82,7 +102,7 @@ python3 index.py
 
    ![image-20200727163011638](./img/image-20200727163011638.png)
 
-4. 修改`执行方法`为：`index.index`，提交方法选择上传本地压缩包，把本地的/data，/utils，index.py打包上传，在点击下面的高级设置，设置内存为64M，超时时间为`30秒`，添加层为刚刚新建的函数依赖层，然后点击完成
+4. 修改`执行方法`为：`index.index`，提交方法选择上传本地压缩包，把本地的`/data`，`/utils`，`index.py`, `functions.py`打包上传，在点击下面的高级设置，设置内存为64M，超时时间为`30秒`，添加层为刚刚新建的函数依赖层，然后点击完成
 
    ![image-20200727163222470](./img/image-20200727163222470.png)
 

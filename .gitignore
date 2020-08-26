@@ -2,4 +2,4 @@
 data/cookie.txt
 myconfig.json
 venv
-utils\__pycache__
+__pycache__
