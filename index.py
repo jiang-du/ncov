@@ -64,7 +64,8 @@ def checkTime(time_lib):
         currentState = 4
     else:
         currentState = 0
-    print("Current Time: %d:%d:%d" % (Hour, Minus, Secs))
+    if currentState:
+        print("当前系统时间  %d:%d:%d" % (Hour, Minus, Secs))
     return currentState
 
 if __name__ == '__main__':
@@ -74,6 +75,8 @@ if __name__ == '__main__':
     Utils.upload_ncov_message(cookie)
     # 定义程序上报的时间，初始值为 7:15, 12:05, 18:10
     time_lib = [7, 15, 12, 5, 18, 10]
+    # 立即更新今日上报时间
+    time_lib = updateTimeLib(time_lib)
     # 定义上报结束之后的冷却时间(s)
     cd_time = 180
     # 是否开启夜间睡眠模式
