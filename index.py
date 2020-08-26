@@ -2,6 +2,7 @@ from utils import Utils
 from utils import USER
 import datetime
 import time
+import random
 
 
 def index(event, context):
@@ -27,14 +28,47 @@ def getNowHourMinSec():
     seconds = int(str(d)[17:19])
     return hour, miniute, seconds
 
+def updateTimeLib(time_lib):
+    """
+    随机更新下一天上报的时间
+    输入值： 原来的上报时间
+    返回值： 更新的上报时间
+    """
+    assert len(time_lib) == 6
+    new_time = time_lib
+    new_time[1] = random.randint(2,59)
+    new_time[3] = random.randint(2,59)
+    new_time[5] = random.randint(2,59)
+    print("Update submission time successfully:")
+    print(new_time)
+    return new_time
 
 if __name__ == '__main__':
+    # 程序运行时立即上报一次
+    cookie = USER.login()
+    # 第一次上报不判断函数返回值，因为假设用户还在电脑旁，可以实时观察程序输出结果
+    Utils.upload_ncov_message(cookie)
+    # 定义程序上报的时间，初始值为 7:15, 12:05, 18:10
+    time_lib = [7, 15, 12, 5, 18, 10]
+    # 更新上报时间
+    time_lib = updateTimeLib(time_lib)
+    # 定义上报结束之后的冷却时间(s)
+    cd_time = 180
+    # 开始上报
     while True:
         Hour, Minus, Secs = getNowHourMinSec()
         # 程序上报的时间点8:02 13:09 18:05
-        if Hour == 8 and Minus == 2 or Hour == 13 and Minus == 9 or Hour == 18 and Minus == 5:
-            # if True:
+        if Hour == time_lib[0] and Minus == time_lib[1] or Hour == time_lib[2] and Minus == time_lib[3] or Hour == Hour == time_lib[4] and Minus == time_lib[5]:
+            print("Current Time: %d:%d:%d" % (Hour, Minus, Secs))
             cookie = USER.login()
-            Utils.upload_ncov_message(cookie)
+            # 函数返回值为1表示上报失败，将自动重试3次
+            if Utils.upload_ncov_message(cookie):
+                time.sleep(90)
+                if Utils.upload_ncov_message(cookie):
+                    time.sleep(180)
+                    if Utils.upload_ncov_message(cookie):
+                        print("I have no idea to try again.")
+            # 上报结束之后的冷却时间
+            time.sleep(cd_time)
         else:
             time.sleep(30)
