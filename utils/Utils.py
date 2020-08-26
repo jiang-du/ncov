@@ -70,6 +70,30 @@ SOUTH_UPLOAD_MSG = {
     "address": "陕西省西安市长安区兴隆街道西安电子科技大学长安校区行政辅楼",  # 实际地址
 }
 
+TEST_UPLOAD_MSG = {
+    "sfzx": "1",  # 是否在校(0->否, 1->是)
+    "tw": "1",
+    # 体温 (36℃->0, 36℃到36.5℃->1, 36.5℃到36.9℃->2, 36.9℃到37℃.3->3, 37.3℃到38℃->4, 38℃到38.5℃->5, 38.5℃到39℃->6, 39℃到40℃->7,
+    # 40℃以上->8)
+    "sfcyglq": "0",  # 是否处于隔离期? (0->否, 1->是)
+    "sfyzz": "0",  # 是否出现乏力、干咳、呼吸困难等症状？ (0->否, 1->是)
+    "qtqk": "",  # 其他情况 (文本)
+    "askforleave": "0",  # 是否请假外出? (0->否, 1->是)
+    "geo_api_info": "{\"type\":\"complete\",\"position\":{\"Q\":30.261994621906,\"R\":120.19715981072,"
+                    "\"lng\":120.19715,\"lat\":30.26199},\"location_type\":\"html5\",\"message\":\"Get ipLocation "
+                    "failed.Get geolocation success.Convert Success.Get address success.\",\"accuracy\":65,"
+                    "\"isConverted\":true,\"status\":1,\"addressComponent\":{\"citycode\":\"0571\","
+                    "\"adcode\":\"310000\",\"businessAreas\":[],\"neighborhoodType\":\"\",\"neighborhood\":\"\","
+                    "\"building\":\"\",\"buildingType\":\"\",\"street\":\"龙井路\",\"streetNumber\":\"1号\","
+                    "\"country\":\"中国\",\"province\":\"浙江省\",\"city\":\"杭州市\",\"district\":\"西湖区\","
+                    "\"township\":\"西湖街道\"},\"formattedAddress\":\"浙江省杭州市西湖区西湖街道龙井路1号杭州西湖风景名胜区\",\"roads\":[],"
+                    "\"crosses\":[],\"pois\":[],\"info\":\"SUCCESS\"}",
+    "area": "浙江省 杭州市 西湖区",  # 地区
+    "city": "杭州市",  # 城市
+    "province": "浙江省",  # 省份
+    "address": "浙江省杭州市西湖区西湖街道龙井路1号杭州西湖风景名胜区",  # 实际地址
+}
+
 CONFIG_PATH = "data/config.json"
 
 
@@ -99,8 +123,10 @@ def get_upload_msg():
     location = config["Location"]
     if location == "1":
         upload_msg = NORTH_UPLOAD_MSG
-    else:
+    elif location == "0":
         upload_msg = SOUTH_UPLOAD_MSG
+    else:
+        upload_msg = TEST_UPLOAD_MSG
     return upload_msg
 
 
@@ -117,7 +143,7 @@ def upload_ncov_message(cookie):
     r = requests.post(UPLOAD_URL, cookies=cookie, headers=header, data=upload_message)
     if r.json()['e'] == 0:
         send_msg("上报成功", "上报成功")
-        return "Upload success"
+        return 0 # "Upload successful"
     else:
         send_msg("上报出现错误", "错误信息: {}".format(r.json()['m']))
-        return "Upload failed"
+        return 1 # "Upload failed"
