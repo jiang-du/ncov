@@ -6,6 +6,21 @@ import platform
 
 os_name = platform.system()
 
+def replace_char(s, len_pwd):
+    """
+    强行对密码所在内存地址进行编辑。用于增强对密码的隐私保护功能。
+    （python没有指针，真的是好难受呀，嘤嘤嘤～）
+    输入值： 字符串、修改的位置
+    返回值： 0
+    """
+    import ctypes
+    OFFSET = ctypes.sizeof(ctypes.c_size_t) * 6
+    a = ctypes.c_char.from_address(id(s) + OFFSET)
+    pi = ctypes.pointer(a)
+    for idx in range(len_pwd):
+        pi[idx] = ord('*')
+    return 0
+
 def clearWindow():
     """
     根据操作系统，自动选择清屏方式
@@ -82,6 +97,7 @@ def checkInternetConnection():
     return True
 
 def getInfo():
+    from utils.USER import COOKIE_FILE_NAME
     CONFIG_PATH = "./data/config.json"
     if os.path.exists(CONFIG_PATH):
         import json
@@ -108,7 +124,8 @@ def getInfo():
             # 定位在哪个校区的事情，学校从来就不看，别写疫区就行，所以无所谓，随便给一个，解决你的选择困难症
             import random
             config["Location"] = random.randint(1,2)
-        elif int(config["stuNum"][4]):
+            print("已自动识别您是教职工，随机定位在" + ("北校区" if config["Location"]==1 else "南校区"))
+        elif int(config["stuNum"][4] == "1"):
             # 研究生
             school_id = int(config["stuNum"][2:4])
             if school_id in (1, 2, 3, 4, 5, 14, 17):
@@ -119,12 +136,17 @@ def getInfo():
                 # 其他学院 --> 南校区
                 config["Location"] = 2
                 print("已自动识别您是硕士/博士生，定位在南校区")
-        else:
+        elif int(config["stuNum"][4] == "0"):
             # 本科生 --> 南校区
             config["Location"] = 2
             print("已自动识别您是本科生")
-    if not config["passWord"]:
-        config["passWord"] = input("请输入密码，密码将明文显示，请注意遮挡键盘，按下回车键后将自动清屏：")
-        # 清屏
-        clearWindow()
+        else:
+            # 无法识别学号/工号 --> 校外
+            config["Location"] = 3
+            print("系统无法识别您的身份，已自动定位到校外")
+    if not(os.path.exists(COOKIE_FILE_NAME)):
+        if not config["passWord"]:
+            config["passWord"] = input("请输入密码，密码将明文显示，请注意遮挡键盘，按下回车键后将自动清屏：")
+            # 清屏
+            clearWindow()
     return config

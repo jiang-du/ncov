@@ -1,7 +1,7 @@
 from utils import Utils
 from utils import USER
 import time
-from functions import updateTimeLib, checkTime, checkInternetConnection, getInfo
+from functions import updateTimeLib, checkTime, checkInternetConnection, getInfo, replace_char
 
 def index(event, context):
     """
@@ -22,10 +22,11 @@ if __name__ == '__main__':
     config = getInfo()
     # 程序运行时立即上报一次
     cookie = USER.login(config)
-    # 登录后立即销毁内存空间中的密码，采用逐字节擦写，更大限度的隐私保护
-    for i in range(len(config["passWord"])):
-        config["passWord"][i] = '*'
-    print("为了保护用户隐私，登录成功后已自动销毁密码，可以放心使用。")
+    if config["passWord"]:
+        # 登录后立即销毁内存空间中的密码，采用逐字节擦写，更大限度的隐私保护
+        if replace_char(config["passWord"], len(config["passWord"])):
+            raise RuntimeError("内存地址访问失败，嘤～")
+        print("为了保护用户隐私，登录成功后已自动销毁密码，可以放心使用。")
     # 第一次上报不判断函数返回值，因为假设用户还在电脑旁，可以实时观察程序输出结果
     Utils.upload_ncov_message(cookie, config)
     # 定义程序上报的时间，初始值为 7:15, 12:05, 18:10
