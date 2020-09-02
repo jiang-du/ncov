@@ -99,7 +99,7 @@ def getInfo():
         # 用户输入学号
         config["stuNum"] = input("请输入学号/工号，按回车键结束：")
         # 确认学号是合法的非0数字
-        assert int("stuNum", base=10)
+        assert int(config["stuNum"], base=10)
     if not config["Location"]:
         # config["Location"] = input("选择想定位的地点：0：南校区，1：北校区，2：在校外，按回车键结束：")
         # 判断工号类型，老师/本科生/研究生
