@@ -22,7 +22,23 @@
 
 3. 每小时输出一次当前时刻(夜间免打扰时间段除外)，以便用户确认程序在正常运行，使用体验更棒。
 
-4. 支持[github](https://github.com/jiang-du/Auto-dailyup)和[码云](https://gitee.com/jiangdu/Auto-dailyup)多个源下载代码，对国内访问体验更友好。
+2020-09-02 更新日志：
+
+1. 更简洁的功能设计，本地运行时，无需额外编辑配置即可一键运行。
+
+2. 本地使用时，输入学工号自动判断`教职工`/`本科生`/`研究生`，并支持根据学院自动识别南北校区的定位。
+
+3. 增强了隐私保护特性。
+
+   - 用户可自由选择在硬盘存储用户名密码，或者首次运行时输入(不保存在硬盘)，输入密码后自动清屏(可支持windows和linux平台)。
+
+   - 即使在不保存密码的情况下，也支持第一次使用之后默认开通免密登录。
+
+   - 登录后立即销毁内存空间中的密码，采用逐字节擦写技术，更大限度的隐私保护。
+
+4. 优化了代码运行的运行逻辑，尽可能的减少了对计算资源和网络带宽的开销。
+
+5. 将层文件改为链接下载的方式，更节省git代码版本控制的资源开销。
 
 ## 项目依赖
 
@@ -31,15 +47,7 @@
 
 ## 使用方法
 
-### Step 1 下载源代码
-
-```bash
-git clone git@github.com:jiang-du/Auto-dailyup.git
-# 如果网速太慢，可以使用码云镜像
-git clone git@gitee.com:jiangdu/Auto-dailyup.git
-```
-
-### Step 2 环境配置：安装requests库
+### Step 1 环境配置：在python下安装requests库
 
 Linux系统：
 
@@ -53,54 +61,48 @@ Windows系统：
 pip install requests -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
-### Step 3 修改配置文件(`data/config.json`)
-
-进入源代码所在路径，然后终端运行：
+### Step 2 下载本代码，然后运行
 
 Linux系统：
 
 ```bash
-vim ./data/config.json
+python3 index.py
 ```
 
 Windows系统：
 
 ```bash
-notepad ./data/config.json
-```
-
-格式如下：
-
-> python 字典的语法, '//'以后为注释。各个参数与选项皆已列出,每一项都是必填字段
-
-```python
-{
-    "stuNum" : "123456789",   // 学号or工号
-    "passWord" : "12345678",  // 密码
-    "Location" : "1",         // 校区，1：北校区，0：南校区，其他：在校外
-    "ServerToken" : ""        // server酱的token，用于消息提醒，非必填
-}
-```
-
-(可选) server酱问题：使用server酱进行通知，先前往[server酱官网](http://sc.ftqq.com/)进行申请与绑定，得到一个server酱的Token，将此Token替换`config.json`里的token
-
-### Step 4 运行
-
-```bash
-python3 index.py
+python index.py
 ```
 
 ### 配合腾讯云函数使用（免费）
 
 没有云服务器的情况下，可以使用腾讯云函数。
 
-1. 打开[腾讯云函数](https://console.cloud.tencent.com/scf/index?rid=1)，注册认证后，进入控制台，点击左边的层，然后点新建，名称随意，然后点击上传zip，选择项目中的`层文件.zip`上传，然后选择运行环境`python3.6`，然后点击确定，耐心等待一下，上传依赖包需要花费的时间比较长 
+1. 打开[腾讯云函数](https://console.cloud.tencent.com/scf/index?rid=1)，注册认证后，进入控制台，点击左边的层，然后点新建，名称随意，然后点击上传zip，选择[`层文件.zip`](https://github.com/cunzao/ncov/blob/master/%E5%B1%82%E6%96%87%E4%BB%B6.zip)上传，然后选择运行环境`python3.6`，然后点击确定，耐心等待一下，上传依赖包需要花费的时间比较长 
 
 2. ![image-20200727162912337](./img/image-20200727162912337.png)
 
 3. 点左边的函数服务，新建云函数，名称随意，运行环境选择`python3.6`，创建方式选择空白函数，然后点击下一步 
 
    ![image-20200727163011638](./img/image-20200727163011638.png)
+
+4. 修改配置文件(`data/config.json`)
+
+   进入源代码所在路径，将`./data/config.json.bak`重命名为`./data/config.json`，然后使用vim或notepad++等文本编辑器编辑这个文件，格式如下：
+
+   > python 字典的语法, '//'以后为注释。各个参数与选项皆已列出,每一项都是必填字段
+
+   ```python
+   {
+      "stuNum" : "123456789",   // 学号or工号
+      "passWord" : "12345678",  // 密码
+      "Location" : "0",         // [非必填] 定位信息：0：自动识别，1：北校区，2：南校区，其他：在校外。不写的话也会自动识别。
+      "ServerToken" : ""        // [非必填] server酱的token，用于消息提醒
+   }
+   ```
+
+   (可选) server酱问题：使用server酱进行通知，先前往[server酱官网](http://sc.ftqq.com/)进行申请与绑定，得到一个server酱的Token，将此Token替换`config.json`里的token
 
 4. 修改`执行方法`为：`index.index`，提交方法选择上传本地压缩包，把本地的`/data`，`/utils`，`index.py`, `functions.py`打包上传，在点击下面的高级设置，设置内存为64M，超时时间为`30秒`，添加层为刚刚新建的函数依赖层，然后点击完成
 
@@ -118,12 +120,12 @@ python3 index.py
 
 ### 服务器使用
 
-由自己的服务器的时候可以使用这个方法
+有自己的服务器的时候可以使用这个方法。
 
-配置好配置文件后运行
+配置好配置文件(`data/config.json`)后运行：
 
 ```bash
 python3 index.py
 ```
 
-至于如何后台运行请[百度一下](http://www.baidu.com/)？
+至于如何后台运行请[百度一下](http://www.baidu.com/)

@@ -1,6 +1,23 @@
 import datetime
 import random
 import requests
+import os
+import platform
+
+os_name = platform.system()
+
+def clearWindow():
+    """
+    根据操作系统，自动选择清屏方式
+    输入值： 无
+    返回值： 无
+    """
+    if os_name == 'Windows':
+        os.system("cls")
+    elif os_name == 'Linux':
+        os.system("clear")
+    else:
+        raise Exception("未知操作系统，目前仅支持Linux和Windows，嘤～")
 
 def getNowHourMinSec():
     """
@@ -63,3 +80,51 @@ def checkInternetConnection():
     except:
         return False
     return True
+
+def getInfo():
+    CONFIG_PATH = "./data/config.json"
+    if os.path.exists(CONFIG_PATH):
+        import json
+        # 获取json文件内容
+        config_file = open(CONFIG_PATH, 'r', encoding="utf-8")
+        config = json.load(config_file)
+    else:
+        config = dict()
+    # 之所以不直接判断不存在这个key就让填写，是因为怕用户不想填的时候没有删掉这个key，那就尴尬啦，嘤～
+    for idx_key in ("stuNum", "passWord", "Location", "ServerToken"):
+        if not (idx_key in config):
+            config[idx_key] = 0
+    # 补全缺失的信息
+    if not config["stuNum"]:
+        # 用户输入学号
+        config["stuNum"] = input("请输入学号/工号，按回车键结束：")
+        # 确认学号是合法的非0数字
+        assert int("stuNum", base=10)
+    if not config["Location"]:
+        # config["Location"] = input("选择想定位的地点：0：南校区，1：北校区，2：在校外，按回车键结束：")
+        # 判断工号类型，老师/本科生/研究生
+        if len(config["stuNum"]) < 8:
+            # 教职工
+            # 定位在哪个校区的事情，学校从来就不看，别写疫区就行，所以无所谓，随便给一个，解决你的选择困难症
+            import random
+            config["Location"] = random.randint(1,2)
+        elif int(config["stuNum"][4]):
+            # 研究生
+            school_id = int(config["stuNum"][2:4])
+            if school_id in (1, 2, 3, 4, 5, 14, 17):
+                # 通院，电院，计科，机电，物光，微电子，智能 --> 北校区
+                config["Location"] = 1
+                print("已自动识别您是硕士/博士生，定位在北校区")
+            else:
+                # 其他学院 --> 南校区
+                config["Location"] = 2
+                print("已自动识别您是硕士/博士生，定位在南校区")
+        else:
+            # 本科生 --> 南校区
+            config["Location"] = 2
+            print("已自动识别您是本科生")
+    if not config["passWord"]:
+        config["passWord"] = input("请输入密码，密码将明文显示，请注意遮挡键盘，按下回车键后将自动清屏：")
+        # 清屏
+        clearWindow()
+    return config

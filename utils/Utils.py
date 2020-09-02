@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+@Time        : 2020/9/2 17:32
+@Author      : Jiang Du
+@Email       : 39544089+jiang-du@users.noreply.github.com
+@File        : Utils.py
+@Description : 
+@Version     : 0.3
+
 @Time        : 2020/7/19 12:25
 @Author      : NingWang
 @Email       : yogehaoren@gmail.com
@@ -7,8 +14,8 @@
 @Description : 
 @Version     : 0.1-dev
 """
+
 import requests
-import json
 
 DEFAULT_HEADER = {
     "Accept": "application/json, text/plain, */*",
@@ -94,43 +101,45 @@ TEST_UPLOAD_MSG = {
     "address": "浙江省杭州市西湖区西湖街道龙井路1号杭州西湖风景名胜区",  # 实际地址
 }
 
-CONFIG_PATH = "data/config.json"
 
-
-def send_msg(title, msg):
+def send_msg(state, config):
     """
     使用server酱发送消息
     :param title: 消息标题
     :param msg: 消息内容
     :return: 无
     """
-    config_file = open(CONFIG_PATH, 'r', encoding="utf-8")
-    config = json.load(config_file)
     token = config["ServerToken"]
-    if token != "":
-        requests.post('https://sc.ftqq.com/{}.send?text={}&desp={}'.format(token, title, msg))
-    print(title)
-    print(msg)
+    if state == 666:
+        title = "上报成功"
+        if token:
+            requests.post('https://sc.ftqq.com/{}.send?text={}&desp={}'.format(token, title, title))
+        print(title)
+    else:
+        title = "上报出现错误"
+        msg = "错误信息: {}".format(state)
+        if token:
+            requests.post('https://sc.ftqq.com/{}.send?text={}&desp={}'.format(token, title, msg))
+        print("上报出现错误")
+        print(msg)
 
 
-def get_upload_msg():
+def get_upload_msg(config):
     """
     获取要提交的内容
     :return: 提交的内容
     """
-    config_file = open(CONFIG_PATH, 'r', encoding="utf-8")
-    config = json.load(config_file)
     location = config["Location"]
-    if location == "1":
+    if location == 1:
         upload_msg = NORTH_UPLOAD_MSG
-    elif location == "0":
+    elif location == 2:
         upload_msg = SOUTH_UPLOAD_MSG
     else:
         upload_msg = TEST_UPLOAD_MSG
     return upload_msg
 
 
-def upload_ncov_message(cookie):
+def upload_ncov_message(cookie, config):
     """
     提交内容的高阶API
     外部使用提交功能就是调用这个API，传入cookies即可提交
@@ -138,12 +147,12 @@ def upload_ncov_message(cookie):
     :return: 无
     """
     header = DEFAULT_HEADER
-    upload_message = get_upload_msg()
-    print(upload_message)
+    upload_message = get_upload_msg(config)
+    print("您当前的地点：" + upload_message["address"])
     r = requests.post(UPLOAD_URL, cookies=cookie, headers=header, data=upload_message)
     if r.json()['e'] == 0:
-        send_msg("上报成功", "上报成功")
+        send_msg(666, config)
         return 0 # "Upload successful"
     else:
-        send_msg("上报出现错误", "错误信息: {}".format(r.json()['m']))
+        send_msg(r.json()['m'], config)
         return 1 # "Upload failed"
