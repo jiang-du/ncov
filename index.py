@@ -23,7 +23,7 @@ if __name__ == '__main__':
     # 程序运行时立即上报一次
     cookie = USER.login(config)
     # 登录后立即销毁内存空间中的密码，采用逐字节擦写，更大限度的隐私保护
-    for i in len(config["passWord"]):
+    for i in range(len(config["passWord"])):
         config["passWord"][i] = '*'
     print("为了保护用户隐私，登录成功后已自动销毁密码，可以放心使用。")
     # 第一次上报不判断函数返回值，因为假设用户还在电脑旁，可以实时观察程序输出结果

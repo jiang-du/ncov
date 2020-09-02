@@ -1,5 +1,6 @@
 .idea/
 data/cookie.txt
+data/cookie.inf
 myconfig.json
 venv
 __pycache__
