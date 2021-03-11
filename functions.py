@@ -127,7 +127,7 @@ def getInfo():
             print("已自动识别您是教职工，随机定位在" + ("北校区" if config["Location"]==1 else "南校区"))
         elif int(config["stuNum"][2:6]) == 1812:
             # 广州研究院产教融合专硕
-            config["Location"] = 2
+            config["Location"] = 3
             print("已自动识别您是广州研究院产教融合专硕，定位在广州校区")
         elif int(config["stuNum"][4] == "1"):
             # 研究生

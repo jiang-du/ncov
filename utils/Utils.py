@@ -82,7 +82,7 @@ SOUTH_UPLOAD_MSG = {
     "address": "陕西省西安市长安区兴隆街道西安电子科技大学长安校区行政辅楼",  # 实际地址
 }
 
-# 2 - 广州研究院
+# 2 - 广州研究院 (测试)
 GZ_UPLOAD_MSG = {
     "sfzx": "1",  # 是否在校(0->否, 1->是)
     "tw": "1",
@@ -172,11 +172,16 @@ def send_msg(state, config):
             requests.post('https://sc.ftqq.com/{}.send?text={}&desp={}'.format(token, title, title))
         print(title)
     else:
-        title = "上报出现错误"
-        msg = "错误信息: {}".format(state)
+        # msg = "错误信息: {}".format(state)
+        if (state == "您已上报过"):
+            title = "警告"
+            msg = "您已上报过，本次无法重复上报，系统将在下个时间段自动恢复上报"
+        else:
+            title = "错误"
+            msg = "错误信息: {}".format(state)
         if token:
             requests.post('https://sc.ftqq.com/{}.send?text={}&desp={}'.format(token, title, msg))
-        print("上报出现错误")
+        print(title)
         print(msg)
 
 
@@ -212,7 +217,8 @@ def upload_ncov_message(cookie, config):
     r = requests.post(UPLOAD_URL, cookies=cookie, headers=header, data=upload_message)
     if r.json()['e'] == 0:
         send_msg(666, config)
-        return 0 # "Upload successful"
+        return 0        # "Upload successful"
     else:
-        send_msg(r.json()['m'], config)
-        return 1 # "Upload failed"
+        state = r.json()['m']
+        send_msg(state, config)
+        return (state != "您已上报过")

@@ -1,6 +1,8 @@
 # 西安电子科技大学晨午晚检自动填报工具
 
-本代码参考[HPShark/xdu_chenwuwanjian.git](https://github.com/HPShark/xdu_chenwuwanjian)和[abadfox233/ncov](https://github.com/abadfox233/ncov), [cunzao/ncov](https://github.com/cunzao/ncov)的作品。感谢大佬们的无私奉献。本代码仅供学术交流。
+本代码参考[HPShark/xdu_chenwuwanjian.git](https://github.com/HPShark/xdu_chenwuwanjian)和[abadfox233/ncov](https://github.com/abadfox233/ncov), [cunzao/ncov](https://github.com/cunzao/ncov)的作品。感谢大佬们的无私奉献。本代码仅供学习交流，请勿擅自拷贝给他人使用。
+
+本项目支持西电北校区/南校区的本科生、硕士生、博士生、教职工，已新增支持广州研究院产教融合专硕，预留未来对杭州研究院新生的支持，建议在校园网环境下运行。
 
 ## 项目依赖
 
@@ -28,13 +30,13 @@ pip install requests -i https://pypi.tuna.tsinghua.edu.cn/simple
 Linux系统：
 
 ```bash
-python3 index.py
+python3 main.py
 ```
 
 Windows系统：
 
 ```bash
-python index.py
+python main.py
 ```
 
 然后保持一直运行，即可自动填报。
@@ -43,15 +45,21 @@ python index.py
 
 有自己的服务器的时候也可以使用这个方法。
 
-配置好配置文件(`data/config.json`)后运行：
+配置好配置文件(把`data/config.json.bak`改名为`data/config.json`)后运行：
 
 ```bash
-python3 index.py
+python3 main.py
 ```
 
 至于如何后台运行请[百度一下](http://www.baidu.com/)
 
 ## 更新日志
+
+2021-03-11 更新日志 (1.0版本)：
+
+1. 更人性化的设计：同一账户重复上报时不再按照报错的处理方式尝试3次，而是自动到下个周期恢复自动上报。
+
+2. 修复了一个BUG，该BUG曾导致广州研究院部分专硕定位失效。
 
 2021-03-11 更新日志：
 
