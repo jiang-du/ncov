@@ -57,7 +57,7 @@ def updateTimeLib(time_lib):
     new_time[1] = random.randint(2,59)
     new_time[3] = random.randint(2,59)
     new_time[5] = random.randint(2,59)
-    print("更新晨午晚检上报时间成功！下一天的上报时间为:")
+    print("更新晨午晚检上报时间成功！下一天自动上报的时间为:")
     print("晨检 - %d点%d分，午检 - %d点%d分，晚检 - %d点%d分。" % tuple(new_time))
     return new_time
 
@@ -121,29 +121,70 @@ def getInfo():
         # 判断工号类型，老师/本科生/研究生
         if len(config["stuNum"]) < 8:
             # 教职工
-            # 定位在哪个校区的事情，学校从来就不看，别写疫区就行，所以无所谓，随便给一个，解决你的选择困难症
+            # 教职工可以在南北校区自由流动，因此随机生成一个，解决你的选择困难症
             import random
             config["Location"] = random.randint(1,2)
             print("已自动识别您是教职工，随机定位在" + ("北校区" if config["Location"]==1 else "南校区"))
+        elif int(config["stuNum"][2:6]) == 1812:
+            # 广州研究院产教融合专硕
+            config["Location"] = 2
+            print("已自动识别您是广州研究院产教融合专硕，定位在广州校区")
         elif int(config["stuNum"][4] == "1"):
             # 研究生
-            school_id = int(config["stuNum"][2:4])
-            if school_id in (1, 2, 3, 4, 5, 14, 17):
-                # 通院，电院，计科，机电，物光，微电子，智能 --> 北校区
-                config["Location"] = 1
-                print("已自动识别您是硕士/博士生，定位在北校区")
+            # 联机查询是否是广州研究院非产教融合的学硕
+            try:
+                ipinfo = requests.get("http://txt.go.sohu.com/ip/soip", timeout=5)
+                ipinfo = ipinfo.text
+                idx = ipinfo.index(";sohu_IP_Loc")
+                location_info = ipinfo[idx + 16 : idx + 18]
+                if location_info == "44":
+                    # 身份归属地在广东
+                    location_type = 3
+                elif location_info == "33":
+                    # 身份归属地在浙江
+                    location_type = 4
+                elif location_info == "61":
+                    # 身份归属地在陕西
+                    location_type = 1
+                else:
+                    # 身份归属地在其他地区，强制改成陕西
+                    location_type = 1
+            except:
+                # 身份归属地在未知地区，默认陕西
+                location_type = 1
+            
+            if location_type in (3, 4):
+                # 广州研究院
+                config["Location"] = location_type
+                if int(config["stuNum"][5]) == 1:
+                    print("已自动识别您是广州研究院非产教融合学术博士，定位在广州校区")
+                else:
+                    print("已自动识别您是广州研究院非产教融合学术硕士，定位在广州校区")
             else:
-                # 其他学院 --> 南校区
-                config["Location"] = 2
-                print("已自动识别您是硕士/博士生，定位在南校区")
+                # 西安校区
+                school_id = int(config["stuNum"][2:4])
+                if school_id in (1, 2, 3, 4, 5, 14, 17):
+                    # 通院，电院，计科，机电，物光，微电子，智能 --> 北校区
+                    config["Location"] = 1
+                    if int(config["stuNum"][5]) == 1:
+                        print("已自动识别您是北校区的博士生，定位在北校区")
+                    else:
+                        print("已自动识别您是北校区的硕士生，定位在北校区")
+                else:
+                    # 其他学院 --> 南校区
+                    config["Location"] = 2
+                    if int(config["stuNum"][5]) == 1:
+                        print("已自动识别您是南校区的博士生，定位在南校区")
+                    else:
+                        print("已自动识别您是南校区的硕士生，定位在南校区")
         elif int(config["stuNum"][4] == "0"):
             # 本科生 --> 南校区
             config["Location"] = 2
             print("已自动识别您是本科生")
         else:
             # 无法识别学号/工号 --> 校外
-            config["Location"] = 3
-            print("系统无法识别您的身份，已自动定位到校外")
+            config["Location"] = 5
+            print("系统无法识别您的学号/工号身份，您的位置已被踢出学校，您将被随机扔到国内其他城市")
     if not(os.path.exists(COOKIE_FILE_NAME)):
         if not config["passWord"]:
             config["passWord"] = input("请输入密码，密码将明文显示，请注意遮挡键盘，按下回车键后将自动清屏：")

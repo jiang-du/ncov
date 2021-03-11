@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-@Time        : 2020/9/2 17:32
+@Time        : 2021/3/11 12:29
 @Author      : Jiang Du
 @Email       : 39544089+jiang-du@users.noreply.github.com
 @File        : Utils.py
 @Description : 
-@Version     : 0.3
+@Version     : 0.4
 
 @Time        : 2020/7/19 12:25
 @Author      : NingWang
@@ -13,6 +13,9 @@
 @File        : Utils.py
 @Description : 
 @Version     : 0.1-dev
+
+@Project     : https://github.com/jiang-du/Auto-dailyup
+@Project     : https://gitee.com/jiangdu/Auto-dailyup
 """
 
 import requests
@@ -30,6 +33,7 @@ DEFAULT_HEADER = {
 
 UPLOAD_URL = "https://xxcapp.xidian.edu.cn/xisuncov/wap/open-report/save"
 
+# 0 - 北校区
 NORTH_UPLOAD_MSG = {
     "sfzx": "1",  # 是否在校(0->否, 1->是)
     "tw": "1",  # 体温 (36℃->0, 36℃到36.5℃->1, 36.5℃到36.9℃->2, 36.9℃到37℃.3->3, 37.3℃到38℃->4, 38℃到38.5℃->5,
@@ -53,6 +57,7 @@ NORTH_UPLOAD_MSG = {
     "address": "陕西省西安市雁塔区电子城街道西安电子科技大学北校区"  # 实际地址
 }
 
+# 0 - 南校区
 SOUTH_UPLOAD_MSG = {
     "sfzx": "1",  # 是否在校(0->否, 1->是)
     "tw": "1",
@@ -77,7 +82,33 @@ SOUTH_UPLOAD_MSG = {
     "address": "陕西省西安市长安区兴隆街道西安电子科技大学长安校区行政辅楼",  # 实际地址
 }
 
-TEST_UPLOAD_MSG = {
+# 2 - 广州研究院
+GZ_UPLOAD_MSG = {
+    "sfzx": "1",  # 是否在校(0->否, 1->是)
+    "tw": "1",
+    # 体温 (36℃->0, 36℃到36.5℃->1, 36.5℃到36.9℃->2, 36.9℃到37℃.3->3, 37.3℃到38℃->4, 38℃到38.5℃->5, 38.5℃到39℃->6, 39℃到40℃->7,
+    # 40℃以上->8)
+    "sfcyglq": "0",  # 是否处于隔离期? (0->否, 1->是)
+    "sfyzz": "0",  # 是否出现乏力、干咳、呼吸困难等症状？ (0->否, 1->是)
+    "qtqk": "",  # 其他情况 (文本)
+    "askforleave": "0",  # 是否请假外出? (0->否, 1->是)
+    "geo_api_info": "{\"type\":\"complete\",\"position\":{\"Q\":23.327658,\"R\":113.54548,"
+                    "\"lng\":113.54548,\"lat\":23.327658},\"location_type\":\"html5\",\"message\":\"Get ipLocation "
+                    "failed.Get geolocation success.Convert Success.Get address success.\",\"accuracy\":65,"
+                    "\"isConverted\":true,\"status\":1,\"addressComponent\":{\"citycode\":\"020\","
+                    "\"adcode\":\"510555\",\"businessAreas\":[],\"neighborhoodType\":\"\",\"neighborhood\":\"\","
+                    "\"building\":\"\",\"buildingType\":\"\",\"street\":\"九龙大道\",\"streetNumber\":\"海丝知识中心\","
+                    "\"country\":\"中国\",\"province\":\"广东省\",\"city\":\"广州市\",\"district\":\"黄埔区\","
+                    "\"township\":\"九龙街道\"},\"formattedAddress\":\"广东省广州市黄埔区九龙大道海丝知识中心\",\"roads\":[],"
+                    "\"crosses\":[],\"pois\":[],\"info\":\"SUCCESS\"}",
+    "area": "广东省 广州市 黄埔区",  # 地区
+    "city": "广州市",  # 城市
+    "province": "广东省",  # 省份
+    "address": "广东省广州市黄埔区九龙大道海丝知识中心",  # 实际地址
+}
+
+# 3 - 杭州研究院 (预留)
+HZ_UPLOAD_MSG = {
     "sfzx": "1",  # 是否在校(0->否, 1->是)
     "tw": "1",
     # 体温 (36℃->0, 36℃到36.5℃->1, 36.5℃到36.9℃->2, 36.9℃到37℃.3->3, 37.3℃到38℃->4, 38℃到38.5℃->5, 38.5℃到39℃->6, 39℃到40℃->7,
@@ -99,6 +130,31 @@ TEST_UPLOAD_MSG = {
     "city": "杭州市",  # 城市
     "province": "浙江省",  # 省份
     "address": "浙江省杭州市西湖区西湖街道龙井路1号杭州西湖风景名胜区",  # 实际地址
+}
+
+# 4 - 备用(出差)
+BAK_UPLOAD_MSG = {
+    "sfzx": "1",  # 是否在校(0->否, 1->是)
+    "tw": "1",
+    # 体温 (36℃->0, 36℃到36.5℃->1, 36.5℃到36.9℃->2, 36.9℃到37℃.3->3, 37.3℃到38℃->4, 38℃到38.5℃->5, 38.5℃到39℃->6, 39℃到40℃->7,
+    # 40℃以上->8)
+    "sfcyglq": "0",  # 是否处于隔离期? (0->否, 1->是)
+    "sfyzz": "0",  # 是否出现乏力、干咳、呼吸困难等症状？ (0->否, 1->是)
+    "qtqk": "",  # 其他情况 (文本)
+    "askforleave": "0",  # 是否请假外出? (0->否, 1->是)
+    "geo_api_info": "{\"type\":\"complete\",\"position\":{\"Q\":31.142927,\"R\":121.81332,"
+                    "\"lng\":121.81332,\"lat\":31.142927},\"location_type\":\"html5\",\"message\":\"Get ipLocation "
+                    "failed.Get geolocation success.Convert Success.Get address success.\",\"accuracy\":65,"
+                    "\"isConverted\":true,\"status\":1,\"addressComponent\":{\"citycode\":\"021\","
+                    "\"adcode\":\"200120\",\"businessAreas\":[],\"neighborhoodType\":\"\",\"neighborhood\":\"\","
+                    "\"building\":\"\",\"buildingType\":\"\",\"street\":\"迎宾大道\",\"streetNumber\":\"6000号\","
+                    "\"country\":\"中国\",\"province\":\"上海市\",\"city\":\"上海市\",\"district\":\"浦东新区\","
+                    "\"township\":\"祝桥镇\"},\"formattedAddress\":\"上海市浦东新区祝桥镇迎宾大道6000号浦东国际机场T2航站楼\",\"roads\":[],"
+                    "\"crosses\":[],\"pois\":[],\"info\":\"SUCCESS\"}",
+    "area": "上海市 浦东新区",  # 地区
+    "city": "上海市",  # 城市
+    "province": "上海市",  # 省份
+    "address": "上海市浦东新区祝桥镇迎宾大道6000号浦东国际机场T2航站楼",  # 实际地址
 }
 
 
@@ -134,8 +190,12 @@ def get_upload_msg(config):
         upload_msg = NORTH_UPLOAD_MSG
     elif location == 2:
         upload_msg = SOUTH_UPLOAD_MSG
+    elif location == 3:
+        upload_msg = GZ_UPLOAD_MSG
+    elif location == 4:
+        upload_msg = HZ_UPLOAD_MSG
     else:
-        upload_msg = TEST_UPLOAD_MSG
+        upload_msg = BAK_UPLOAD_MSG
     return upload_msg
 
 
