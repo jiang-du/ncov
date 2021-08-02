@@ -1,11 +1,18 @@
 # -*- coding: utf-8 -*-
 """
+@Time        : 2021/8/3 00:40
+@Author      : Jiang Du
+@Email       : 39544089+jiang-du@users.noreply.github.com
+@File        : Utils.py
+@Description : 
+@Version     : 2.0-alpha
+
 @Time        : 2021/3/11 12:29
 @Author      : Jiang Du
 @Email       : 39544089+jiang-du@users.noreply.github.com
 @File        : Utils.py
 @Description : 
-@Version     : 0.4
+@Version     : 1.0
 
 @Time        : 2020/7/19 12:25
 @Author      : NingWang
@@ -24,14 +31,12 @@ DEFAULT_HEADER = {
     "Accept": "application/json, text/plain, */*",
     "Accept-Encoding": "gzip, deflate, br",
     "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-    "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) "
-                  "Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/84.0.4147.89",
+    "User-Agent": "Mozilla/5.0 (Windows NT 11.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36 Edg/92.0.902.55",
     "X-Requested-With": "XMLHttpRequest",
-    "Referer": "https://xxcapp.xidian.edu.cn/site/ncov/xisudailyup",
     "Origin": "https://xxcapp.xidian.edu.cn"
 }
 
-UPLOAD_URL = "https://xxcapp.xidian.edu.cn/xisuncov/wap/open-report/save"
+UPLOAD_URL = "https://xxcapp.xidian.edu.cn/ncov/wap/default/save"
 
 # 0 - 北校区
 NORTH_UPLOAD_MSG = {
@@ -157,6 +162,29 @@ BAK_UPLOAD_MSG = {
     "address": "上海市浦东新区祝桥镇迎宾大道6000号浦东国际机场T2航站楼",  # 实际地址
 }
 
+# 疫情通
+YIQINGTONG_MSG = {
+    "zgfxdq": "0",  # 今日是否在中高风险地区 (0->否, 1->是)
+    "mjry": "0",    # 今日是否接触密接人员 (0->否, 1->是)
+    "csmjry": "0",  # 近14日内本人/共同居住者是否去过疫情发生场所（市场、单位、小区等）或与场所人员有过密切接触 (0->否, 1->是)
+    "sfzx": "1",    # 是否在校 (0->否, 1->是)
+    "tw": "1",
+    # 体温 (36℃->0, 36℃到36.5℃->1, 36.5℃到36.9℃->2, 36.9℃到37℃.3->3, 37.3℃到38℃->4, 38℃到38.5℃->5, 38.5℃到39℃->6, 39℃到40℃->7,
+    # 40℃以上->8)
+    "sfcyglq": "0", # 是否处于隔离期? (0->否, 1->是)
+    "sfjcjwry": "0",# 今日是否接触境外人员
+    # "sfyzz": "0", # 是否出现乏力、干咳、呼吸困难等症状？ (0->否, 1->是)
+    "sfcxtz": "0",  # 今日是否出现发热（37.3℃以上）、乏力、干咳、呼吸困难等任意症状之一
+    "sfjcbh": "0",  # 今日是否接触无症状感染/疑似/确诊人群
+    "sfcxzysx": "0",# 是否有任何与疫情相关的值得注意的情况
+    "ismoved": "0", # 请选择不和前一天同城原因
+    "qksm": "",     # 情况说明
+    # ---------- 不需要修改这里的位置，因为后续会自动匹配 ----------
+    "area": "陕西省 西安市 长安区", # 地区
+    "city": "西安市",       # 城市
+    "province": "陕西省",   # 省份
+    "address": "陕西省西安市长安区兴隆街道西安电子科技大学长安校区行政辅楼",    # 实际地址
+}
 
 def send_msg(state, config):
     """
@@ -184,6 +212,20 @@ def send_msg(state, config):
         print(title)
         print(msg)
 
+def open_happy_box():
+    """
+    开启盲盒
+    :return: 返回随机地理位置名称(字符串)
+    """
+    import json, random
+    with open('data/location.json', 'r') as f:
+        location = json.load(f)
+    keys = list(location.keys())
+    # 开始抽奖
+    select = random.randint(0, len(keys))
+    # 顺便给个随机的数字，用于瞎编一个门牌号
+    gate_num = random.randint(1, 9999)
+    return location[keys[select]], gate_num
 
 def get_upload_msg(config):
     """
@@ -191,16 +233,41 @@ def get_upload_msg(config):
     :return: 提交的内容
     """
     location = config["Location"]
-    if location == 1:
-        upload_msg = NORTH_UPLOAD_MSG
-    elif location == 2:
-        upload_msg = SOUTH_UPLOAD_MSG
-    elif location == 3:
-        upload_msg = GZ_UPLOAD_MSG
-    elif location == 4:
-        upload_msg = HZ_UPLOAD_MSG
+    if config["mode"] == "疫情通":
+        upload_msg = YIQINGTONG_MSG
+        if config["happy_box"]:
+            area, gate_num = open_happy_box()
+            print("已开启盲盒模式，为您带来生活的小惊喜，本次为您上报的地点为：" + area)
+            upload_msg["area"] = area
+            upload_msg["city"] = area.split()[-2]
+            upload_msg["province"] = area.split()[0]
+            if len(area.split()) == 3:
+                upload_msg["address"] = area.split()[0]+area.split()[1]+area.split()[2]+"无名路"+str(gate_num%66+1)+"号"
+            else:
+                upload_msg["address"] = area.split()[0]+area.split()[1]+"世纪大道"+str(gate_num%300+1)+"号"
+        else:
+            for key in ("area", "city", "province", "address"):
+                if location == 1:
+                    upload_msg[key] = NORTH_UPLOAD_MSG[key]
+                elif location == 2:
+                    upload_msg[key] = SOUTH_UPLOAD_MSG[key]
+                elif location == 3:
+                    upload_msg[key] = GZ_UPLOAD_MSG[key]
+                elif location == 4:
+                    upload_msg[key] = HZ_UPLOAD_MSG[key]
+                else:
+                    upload_msg[key] = BAK_UPLOAD_MSG[key]
     else:
-        upload_msg = BAK_UPLOAD_MSG
+        if location == 1:
+            upload_msg = NORTH_UPLOAD_MSG
+        elif location == 2:
+            upload_msg = SOUTH_UPLOAD_MSG
+        elif location == 3:
+            upload_msg = GZ_UPLOAD_MSG
+        elif location == 4:
+            upload_msg = HZ_UPLOAD_MSG
+        else:
+            upload_msg = BAK_UPLOAD_MSG
     return upload_msg
 
 
@@ -212,6 +279,10 @@ def upload_ncov_message(cookie, config):
     :return: 无
     """
     header = DEFAULT_HEADER
+    if config["mode"] == "疫情通":
+        header["Referer"] = "https://xxcapp.xidian.edu.cn/ncov/wap/default"
+    else:
+        header["Referer"] = "https://xxcapp.xidian.edu.cn/site/ncov/xisudailyup"
     upload_message = get_upload_msg(config)
     print("您当前的地点：" + upload_message["address"])
     r = requests.post(UPLOAD_URL, cookies=cookie, headers=header, data=upload_message)

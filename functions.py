@@ -46,7 +46,7 @@ def getNowHourMinSec():
     seconds = int(str(d)[17:19])
     return hour, miniute, seconds
 
-def updateTimeLib(time_lib):
+def updateTimeLib(time_lib, single = False):
     """
     随机更新下一天上报的时间
     输入值： 原来的上报时间
@@ -57,8 +57,11 @@ def updateTimeLib(time_lib):
     new_time[1] = random.randint(2,59)
     new_time[3] = random.randint(2,59)
     new_time[5] = random.randint(2,59)
-    print("更新晨午晚检上报时间成功！下一天自动上报的时间为:")
-    print("晨检 - %d点%d分，午检 - %d点%d分，晚检 - %d点%d分。" % tuple(new_time))
+    if single:
+        print("更新疫情通上报时间成功！下一天自动上报的时间为:%d点%d分。" % tuple(new_time[0:2]))
+    else:
+        print("更新晨午晚检上报时间成功！下一天自动上报的时间为:")
+        print("晨检 - %d点%d分，午检 - %d点%d分，晚检 - %d点%d分。" % tuple(new_time))
     return new_time
 
 def checkTime(time_lib):
@@ -69,7 +72,7 @@ def checkTime(time_lib):
     """
     Hour, Minus, Secs = getNowHourMinSec()
     if Hour == time_lib[0] and Minus == time_lib[1]:
-        # 晨检
+        # 晨检、疫情通
         currentState = 1
     elif Hour == time_lib[2] and Minus == time_lib[3]:
         # 午检
@@ -91,7 +94,7 @@ def checkTime(time_lib):
 
 def checkInternetConnection():
     try:
-        requests.get("https://xxcapp.xidian.edu.cn/site/ncov/xisudailyup", timeout=5)
+        requests.get("https://xxcapp.xidian.edu.cn/ncov/wap/default", timeout=5)
     except:
         return False
     return True
