@@ -28,8 +28,6 @@ if __name__ == '__main__':
     if line[0]=='1':
         config["mode"] = "疫情通"
         print("已选择疫情通")
-        # 开启盲盒模式，每次填报时随机解锁不同城市勋章，给平淡的生活带来很多小惊喜(测试功能)
-        config["happy_box"] = True
         # 程序运行时立即上报一次
         # 第一次上报不判断函数返回值，因为假设用户还在电脑旁，可以实时观察程序输出结果
         Utils.upload_ncov_message(cookie, config) 
@@ -49,7 +47,7 @@ if __name__ == '__main__':
                     if Utils.upload_ncov_message(cookie, config):
                         time.sleep(180)
                         if Utils.upload_ncov_message(cookie, config):
-                            print("连续尝试了3次都上报失败啦，嘤～")
+                            print("连续尝试了3次都上报失败啦，嘤嘤嘤！")
                 # 上报结束之后的冷却时间
                 time.sleep(cd_time)
             elif currentState == 4:

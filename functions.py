@@ -109,6 +109,8 @@ def getInfo():
         config = json.load(config_file)
     else:
         config = dict()
+    # 开启盲盒模式，每次填报时随机解锁不同城市勋章，给平淡的生活带来很多小惊喜(测试功能)
+    config["happy_box"] = True
     # 之所以不直接判断不存在这个key就让填写，是因为怕用户不想填的时候没有删掉这个key，那就尴尬啦，嘤～
     for idx_key in ("stuNum", "passWord", "Location", "ServerToken"):
         if not (idx_key in config):
