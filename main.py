@@ -33,6 +33,14 @@ if __name__ == '__main__':
         Utils.upload_ncov_message(cookie, config) 
         # 立即更新今日上报时间
         time_lib = updateTimeLib(time_lib, single = True)
+        # 填报过一次之后再选择
+        line = input("请选择是否开启盲盒模式，以便给您平淡的生活带来很多小确幸：1-关闭(默认)，2-开启(免费试用)，按回车键结束：")
+        if len(line) and (line[0]=='1'):
+            # 关闭
+            config["happy_box"] = False
+        else:
+            # 开启
+            config["happy_box"] = True
         # 开始上报
         while True:
             # 每天早上自动填疫情通
