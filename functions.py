@@ -58,10 +58,10 @@ def updateTimeLib(time_lib, single = False):
     new_time[3] = random.randint(2,59)
     new_time[5] = random.randint(2,59)
     if single:
-        print("更新疫情通上报时间成功！下一天自动上报的时间为:%d点%d分。" % tuple(new_time[0:2]))
+        print("更新疫情通上报时间成功！下一天自动上报的时间为:%02d点%02d分。" % tuple(new_time[0:2]))
     else:
         print("更新晨午晚检上报时间成功！下一天自动上报的时间为:")
-        print("晨检 - %d点%d分，午检 - %d点%d分，晚检 - %d点%d分。" % tuple(new_time))
+        print("晨检 - %02d点%02d分，午检 - %02d点%02d分，晚检 - %02d点%02d分。" % tuple(new_time))
     return new_time
 
 def checkTime(time_lib):
@@ -89,7 +89,7 @@ def checkTime(time_lib):
     else:
         currentState = 0
     if currentState:
-        print("当前系统时间  %d:%d:%d" % (Hour, Minus, Secs))
+        print("当前系统时间  %02d:%02d:%02d" % (Hour, Minus, Secs))
     return currentState
 
 def checkInternetConnection():
@@ -109,8 +109,8 @@ def getInfo():
         config = json.load(config_file)
     else:
         config = dict()
-    # 开启盲盒模式，每次填报时随机解锁不同城市勋章，给平淡的生活带来很多小惊喜(测试功能)
-    config["happy_box"] = True
+    # 开启盲盒模式，每次填报时随机解锁不同城市勋章，给平淡的生活带来很多小惊喜(测试功能，默认关闭)
+    config["happy_box"] = False
     # 之所以不直接判断不存在这个key就让填写，是因为怕用户不想填的时候没有删掉这个key，那就尴尬啦，嘤～
     for idx_key in ("stuNum", "passWord", "Location", "ServerToken"):
         if not (idx_key in config):
