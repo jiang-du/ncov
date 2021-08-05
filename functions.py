@@ -130,10 +130,13 @@ def getInfo():
             import random
             config["Location"] = random.randint(1,2)
             print("已自动识别您是教职工，随机定位在" + ("北校区" if config["Location"]==1 else "南校区"))
+            # 更新：由于广研院涉及是否搬校区，在学号判断之前先走一个地理位置判断
+            """
         elif int(config["stuNum"][2:6]) == 1812:
             # 广州研究院产教融合专硕
             config["Location"] = 3
             print("已自动识别您是广州研究院产教融合专硕，定位在广州校区")
+            """
         elif int(config["stuNum"][4] == "1"):
             # 研究生
             # 联机查询是否是广州研究院非产教融合的学硕
@@ -161,14 +164,24 @@ def getInfo():
             if location_type in (3, 4):
                 # 广州研究院
                 config["Location"] = location_type
-                if int(config["stuNum"][5]) == 1:
+                # if int(config["stuNum"][2:6]) == 1812:
+                if int(config["stuNum"][2:4]) >= 18:
+                    print("已自动识别您是广州研究院产教融合硕士，定位在广州校区")
+                elif int(config["stuNum"][5]) == 1:
                     print("已自动识别您是广州研究院非产教融合学术博士，定位在广州校区")
                 else:
-                    print("已自动识别您是广州研究院非产教融合学术硕士，定位在广州校区")
+                    print("已自动识别您是西安来广州研究院的非产教融合硕士，定位在广州校区")
             else:
-                # 西安校区
+                # 判断学院
                 school_id = int(config["stuNum"][2:4])
-                if school_id in (1, 2, 3, 4, 5, 14, 17):
+                if school_id >= 18:
+                    config["Location"] = 1
+                    # 广研院回西安的默认在北校区
+                    if school_id == 18:
+                        print("已自动识别您是广州研究院产教融合硕士，但定位在西安，被系统判定为默认已经搬校区")
+                    else:
+                        print("无法识别您的院系，默认在北校区")
+                elif school_id in (1, 2, 3, 4, 5, 14, 17, 18):
                     # 通院，电院，计科，机电，物光，微电子，智能 --> 北校区
                     config["Location"] = 1
                     if int(config["stuNum"][5]) == 1:
@@ -185,7 +198,7 @@ def getInfo():
         elif int(config["stuNum"][4] == "0"):
             # 本科生 --> 南校区
             config["Location"] = 2
-            print("已自动识别您是本科生")
+            print("已自动识别您是本科生，定位在南校区")
         else:
             # 无法识别学号/工号 --> 校外
             config["Location"] = 5
